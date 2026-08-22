@@ -1,6 +1,12 @@
-import type { NextConfig } from 'next';
+﻿import type { NextConfig } from 'next';
+
+const isGitHubPages = process.env.GITHUB_PAGES === 'true' || true;
+const repoName = 'bio-link';
+
 const nextConfig: NextConfig = {
   output: 'export',
+  basePath: isGitHubPages ? `/${repoName}` : '',
+  assetPrefix: isGitHubPages ? `/${repoName}/` : '',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -10,4 +16,5 @@ const nextConfig: NextConfig = {
   },
   trailingSlash: true
 };
+
 export default nextConfig;
