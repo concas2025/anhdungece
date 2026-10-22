@@ -1,16 +1,17 @@
 import type { NextConfig } from 'next';
 import path from 'node:path';
 
-const isGitHubPages = process.env.GITHUB_PAGES !== 'false';
-const repoName = 'bio-link';
+// Custom domain is served at /. Opt in only for a project-URL preview.
+const isProjectPages = process.env.GITHUB_PAGES_PROJECT === 'true';
+const repoName = 'anhdungece';
 
 const nextConfig: NextConfig = {
   turbopack: { root: path.resolve('.') },
   output: 'export',
-  env: { NEXT_PUBLIC_BASE_PATH: isGitHubPages ? '/bio-link' : '' },
+  env: { NEXT_PUBLIC_BASE_PATH: isProjectPages ? `/${repoName}` : '' },
   devIndicators: false,
-  basePath: isGitHubPages ? `/${repoName}` : '',
-  assetPrefix: isGitHubPages ? `/${repoName}/` : '',
+  basePath: isProjectPages ? `/${repoName}` : '',
+  assetPrefix: isProjectPages ? `/${repoName}/` : '',
   images: {
     unoptimized: true,
     remotePatterns: [

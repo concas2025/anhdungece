@@ -33,4 +33,4 @@ npm run dev
 npm run build
 ```
 
-Default URLs include `/bio-link/`. `GITHUB_PAGES=false` builds without that prefix for another host. Static output is `out/`; deploy its contents to `gh-pages` and include `.nojekyll`. `next start` is not the way to serve an exported site. GitHub Pages currently publishes from `gh-pages`; updating `main` alone does not publish the UI.
+The canonical domain is `https://anhdungece.id.vn/`, served at the root path. `public/CNAME` persists that domain across static deployments. `GITHUB_PAGES_PROJECT=true` opts into `/anhdungece/` for project-path testing; omit that flag for normal custom-domain builds. Static output is `out/`; deploy its contents to `gh-pages` and include `.nojekyll`. `next start` is not the way to serve an exported site. GitHub Pages currently publishes from `gh-pages`; updating `main` alone does not publish the UI.

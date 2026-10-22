@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { bioData } from '@/features/bio/data/links-data';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://concas2025.github.io'),
+  metadataBase: new URL('https://anhdungece.id.vn'),
   applicationName: 'AD — Personal Space',
   title: `${bioData.name} | Thông Tin Liên Hệ & Bio Links`,
   description: bioData.bio,
