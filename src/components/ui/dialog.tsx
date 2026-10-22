@@ -24,7 +24,7 @@ export function DialogContent({ className, children, ...props }: DialogPrimitive
       <DialogOverlay />
       <DialogPrimitive.Popup
         className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border/80 bg-popover p-6 shadow-lg duration-200 rounded-2xl animate-in fade-in-0 zoom-in-95',
+          'fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto translate-x-[-50%] translate-y-[-50%] gap-4 border border-border/80 bg-popover p-6 shadow-lg duration-200 rounded-2xl animate-in fade-in-0 zoom-in-95',
           className
         )}
         {...props}
@@ -34,7 +34,7 @@ export function DialogContent({ className, children, ...props }: DialogPrimitive
           render={<Button variant='ghost' size='icon-xs' className='absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100' />}
         >
           <Icons.close className='h-4 w-4' />
-          <span className='sr-only'>Close</span>
+          <span className='sr-only'>Đóng hộp thoại</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Popup>
     </DialogPortal>

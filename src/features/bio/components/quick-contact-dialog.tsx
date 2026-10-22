@@ -1,62 +1,36 @@
 'use client';
-import * as React from 'react';
+import { useState } from 'react';
+import { ArrowUpRight, Mail } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Icons } from '@/components/icons';
-import { toast } from 'sonner';
+import { bioData } from '../data/links-data';
 
 export function QuickContactDialog() {
-  const [open, setOpen] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const formData = new FormData(e.currentTarget);
-    const sender = formData.get('sender') as string;
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setOpen(false);
-      toast.success('Tin nhắn đã được gửi đi thành công!', {
-        description: `Cảm ơn ${sender || 'bạn'}, mình sẽ phản hồi qua email/zalo sớm nhất có thể.`
-      });
-    }, 800);
+  const [open, setOpen] = useState(false);
+  const email = bioData.socialLinks.find(link => link.actionType === 'email')?.copyValue || '';
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const sender = String(data.get('sender') || '').trim();
+    const message = String(data.get('message') || '').trim();
+    if (!sender || !message) return;
+    window.location.href = 'mailto:' + email + '?subject=' + encodeURIComponent('Lời chào từ ' + sender) + '&body=' + encodeURIComponent(message + '\n\nThông tin liên hệ: ' + sender);
   };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant='outline' className='w-full gap-2 border-border/80 bg-card/60 backdrop-blur-sm hover:bg-card/90 shadow-sm rounded-xl h-11 text-sm font-medium' />}>
-        <Icons.chat className='h-4 w-4 text-primary' />
-        Gửi Tin Nhắn Nhanh Trực Tiếp
+      <DialogTrigger render={<Button className='gap-3 rounded-full px-6 min-h-12' variant='outline' />}>
+        Gửi một lời chào <ArrowUpRight size={17} aria-hidden='true' />
       </DialogTrigger>
-
-      <DialogContent className='sm:max-w-[425px] rounded-2xl'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2 text-lg'>
-            <Icons.send className='h-5 w-5 text-primary' />
-            Gửi lời nhắn cho Dũng
-          </DialogTitle>
-          <DialogDescription>Để lại thông tin và lời nhắn, mình sẽ nhận được thông báo ngay lập tức.</DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className='space-y-4 pt-2'>
-          <div className='space-y-1.5'>
-            <Label htmlFor='sender' className='text-xs font-semibold'>Tên hoặc Kênh liên hệ của bạn *</Label>
-            <Input id='sender' name='sender' placeholder='VD: Hoàng Nam (0912... hoặc nam@gmail.com)' required className='rounded-lg text-sm' />
-          </div>
-          <div className='space-y-1.5'>
-            <Label htmlFor='message' className='text-xs font-semibold'>Nội dung lời nhắn *</Label>
-            <Textarea id='message' name='message' placeholder='Bạn cần trao đổi về dự án viễn thông, phần cứng hay kết nối công việc?' rows={4} required className='rounded-lg text-sm' />
-          </div>
-          <DialogFooter className='pt-2'>
-            <Button type='button' variant='ghost' onClick={() => setOpen(false)} disabled={isSubmitting} className='rounded-lg'>Hủy</Button>
-            <Button type='submit' disabled={isSubmitting} className='gap-2 rounded-lg'>
-              {isSubmitting ? (<><Icons.spinner className='h-4 w-4 animate-spin' />Đang gửi...</>) : (<><Icons.send className='h-4 w-4' />Gửi ngay</>)}
-            </Button>
-          </DialogFooter>
+      <DialogContent className='sm:max-w-[450px]'>
+        <DialogHeader><DialogTitle className='flex items-center gap-2'><Mail size={20} aria-hidden='true' />Gửi lời nhắn cho Dũng</DialogTitle><DialogDescription>Soạn lời nhắn tại đây rồi mở ứng dụng email để gửi đến {email}.</DialogDescription></DialogHeader>
+        <form onSubmit={submit} className='space-y-5 pt-2'>
+          <div className='space-y-2'><Label htmlFor='sender'>Tên và thông tin liên hệ</Label><Input id='sender' name='sender' required maxLength={200} placeholder='Tên của bạn · Email hoặc số điện thoại' className='h-12' /></div>
+          <div className='space-y-2'><Label htmlFor='message'>Lời nhắn của bạn</Label><Textarea id='message' name='message' required maxLength={3000} placeholder='Mình muốn trao đổi về…' rows={5} /></div>
+          <p className='text-xs leading-relaxed text-muted-foreground'>Bạn sẽ kiểm tra và bấm gửi trong ứng dụng email. Hoặc liên hệ trực tiếp qua một trong các kênh trên trang.</p>
+          <DialogFooter><Button type='button' variant='ghost' onClick={() => setOpen(false)}>Đóng</Button><Button type='submit'>Mở ứng dụng email <ArrowUpRight size={15} aria-hidden='true' /></Button></DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

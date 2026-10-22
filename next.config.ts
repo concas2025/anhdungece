@@ -1,10 +1,14 @@
-﻿import type { NextConfig } from 'next';
+import type { NextConfig } from 'next';
+import path from 'node:path';
 
-const isGitHubPages = process.env.GITHUB_PAGES === 'true' || true;
+const isGitHubPages = process.env.GITHUB_PAGES !== 'false';
 const repoName = 'bio-link';
 
 const nextConfig: NextConfig = {
+  turbopack: { root: path.resolve('.') },
   output: 'export',
+  env: { NEXT_PUBLIC_BASE_PATH: isGitHubPages ? '/bio-link' : '' },
+  devIndicators: false,
   basePath: isGitHubPages ? `/${repoName}` : '',
   assetPrefix: isGitHubPages ? `/${repoName}/` : '',
   images: {

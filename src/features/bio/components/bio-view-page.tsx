@@ -1,86 +1,99 @@
 'use client';
-import * as React from 'react';
+
+import { useCallback, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useTheme } from 'next-themes';
+import { ArrowDown, ArrowUpRight, Moon, Sun, Share2, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 import { ProfileHeader } from './profile-header';
 import { BankQrCard } from './bank-qr-card';
 import { SocialLinkCard } from './social-link-card';
 import { QuickContactDialog } from './quick-contact-dialog';
+import { SectionDock } from './section-dock';
+import { WelcomeIntro } from '@/components/effects/welcome-intro';
+import { HandwrittenName } from '@/components/effects/handwritten-name';
 import { bioData } from '../data/links-data';
-import { Button } from '@/components/ui/button';
-import { Icons } from '@/components/icons';
-import { useTheme } from 'next-themes';
-import { toast } from 'sonner';
+
+const ChromeBackground = dynamic(() => import('@/components/effects/chrome-background'), { ssr: false });
 
 export function BioViewPage() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
+  const { setTheme, resolvedTheme } = useTheme();
+  const [ready, setReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [introKey, setIntroKey] = useState(0);
+  const finishIntro = useCallback(() => {
+    setReady(true);
+    requestAnimationFrame(() => document.getElementById('profile-name')?.focus({ preventScroll: true }));
   }, []);
+  useEffect(() => setMounted(true), []);
 
   const handleShare = async () => {
-    const shareData = {
-      title: `${bioData.name} | Bio Links`,
-      text: bioData.bio,
-      url: typeof window !== 'undefined' ? window.location.href : ''
-    };
-    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-      try { await navigator.share(shareData); } catch {}
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Đã sao chép đường dẫn trang cá nhân!');
+    const data = { title: bioData.name + ' | Bio Links', text: bioData.bio, url: window.location.href };
+    try {
+      if (navigator.share && navigator.canShare?.(data)) await navigator.share(data);
+      else { await navigator.clipboard.writeText(data.url); toast.success('Đã sao chép đường dẫn trang cá nhân'); }
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) toast.error('Chưa thể chia sẻ. Bạn có thể sao chép URL trên thanh địa chỉ.');
     }
   };
-
-  const toggleTheme = () => {
-    const isDark = resolvedTheme === 'dark' || theme === 'dark';
-    setTheme(isDark ? 'light' : 'dark');
+  const replay = () => {
+    try { sessionStorage.removeItem('dung-welcome-v1'); } catch {}
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    setReady(false);
+    setIntroKey(key => key + 1);
   };
 
   return (
-    <div className='relative min-h-screen w-full bg-background text-foreground flex flex-col items-center justify-between p-4 sm:p-6 md:py-10 transition-colors duration-300'>
-      <div className='pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-40 dark:opacity-25' aria-hidden='true'>
-        <div className='absolute -top-[15%] left-[50%] -translate-x-1/2 h-[450px] w-[500px] rounded-full bg-primary/20 blur-[130px]' />
-        <div className='absolute top-[40%] -left-[10%] h-[350px] w-[350px] rounded-full bg-sky-500/15 blur-[120px]' />
-        <div className='absolute -bottom-[10%] -right-[10%] h-[350px] w-[350px] rounded-full bg-purple-500/15 blur-[120px]' />
-      </div>
-
-      <div className='relative z-10 w-full max-w-lg flex items-center justify-between pb-2'>
-        <Button variant='ghost' size='sm' onClick={handleShare} className='rounded-full h-8 px-3 text-xs gap-1.5 text-muted-foreground hover:text-foreground bg-card/40 backdrop-blur-md border border-border/40'>
-          <Icons.share className='size-3.5' />
-          <span>Chia sẻ</span>
-        </Button>
-
-        {mounted && (
-          <Button variant='ghost' size='icon-sm' onClick={toggleTheme} className='rounded-full size-8 text-muted-foreground hover:text-foreground bg-card/40 backdrop-blur-md border border-border/40' aria-label='Toggle theme'>
-            {resolvedTheme === 'dark' ? <Icons.sun className='size-4' /> : <Icons.moon className='size-4' />}
-          </Button>
-        )}
-      </div>
-
-      <main className='relative z-10 w-full max-w-lg flex flex-col items-center space-y-6'>
-        <ProfileHeader profile={bioData} />
-        <BankQrCard banks={bioData.banks} />
-        <div className='w-full space-y-3'>
-          <div className='flex items-center justify-between px-1'>
-            <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>Danh sách liên hệ & Mạng xã hội</h2>
-            <span className='text-[11px] text-muted-foreground'>${bioData.socialLinks.length} kênh</span>
-          </div>
-          <div className='flex flex-col gap-2.5 w-full'>
-            {bioData.socialLinks.map((link) => (
-              <SocialLinkCard key={link.id} link={link} />
-            ))}
-          </div>
+    <>
+      <WelcomeIntro key={introKey} onComplete={finishIntro} />
+      {ready && <ChromeBackground />}
+      <div className={'site-shell ' + (ready ? 'site-shell--ready' : '')} inert={mounted && !ready}>
+        <a href='#ket-noi' className='skip-link'>Đến danh sách liên kết</a>
+        <SectionDock />
+        <div className='page-content'>
+          <header className='site-topbar'>
+            <a href='#gioi-thieu' className='wordmark' aria-label='Phạm Anh Dũng — trang cá nhân'>AD<span>®</span><small>PERSONAL SPACE / 2026</small></a>
+            <div className='topbar-actions'>
+              <span className='topbar-location'>VIỆT NAM <span aria-hidden='true'>↗</span></span>
+              <button className='metal-control icon-control' onClick={handleShare} aria-label='Chia sẻ trang cá nhân'><Share2 size={17} aria-hidden='true' /></button>
+              {mounted && <button className='metal-control icon-control' onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')} aria-label={resolvedTheme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}>
+                {resolvedTheme === 'dark' ? <Sun size={17} aria-hidden='true' /> : <Moon size={17} aria-hidden='true' />}
+              </button>}
+            </div>
+          </header>
+          <main>
+            <section id='gioi-thieu' className='intro-section' aria-labelledby='profile-name'>
+              <div className='section-kicker'><span className='status-dot' /> MỘT GÓC NHỎ TRÊN INTERNET <span className='kicker-line' /></div>
+              <ProfileHeader profile={bioData} ready={ready} />
+              <a href='#ket-noi' className='scroll-cue'><span>KHÁM PHÁ THÊM</span><ArrowDown size={15} aria-hidden='true' /></a>
+            </section>
+            <div className='information-grid'>
+              <section id='ket-noi' className='links-section' aria-labelledby='links-title'>
+                <div className='section-heading'><div><span className='section-number'>01 / KẾT NỐI</span><h2 id='links-title'>Tìm mình ở đây<span>.</span></h2></div><span className='count-label'>{bioData.socialLinks.length.toString().padStart(2, '0')} KÊNH</span></div>
+                <p className='section-description'>Một lời chào, một ý tưởng, hay đơn giản là giữ liên lạc.</p>
+                <div className='social-links'>{bioData.socialLinks.map((link, index) => <SocialLinkCard key={link.id} link={link} index={index} />)}</div>
+              </section>
+              <section id='chuyen-khoan' className='bank-section' aria-labelledby='bank-title'>
+                <div className='section-heading'><div><span className='section-number'>02 / CHUYỂN KHOẢN</span><h2 id='bank-title'>Quét & kết nối<span>.</span></h2></div></div>
+                <p className='section-description'>Thông tin ngân hàng của mình, gọn trong một mã QR.</p>
+                <BankQrCard banks={bioData.banks} />
+                <div className='bank-footnote'><span className='tiny-line' />Kiểm tra đúng tên người nhận trước khi chuyển khoản.</div>
+              </section>
+            </div>
+            <section id='lien-he' className='contact-section glass-panel' aria-labelledby='contact-title'>
+              <div><span className='section-number'>03 / MỘT CUỘC TRÒ CHUYỆN MỚI</span><h2 id='contact-title'>Bắt đầu từ một lời chào<span>.</span></h2><p>Công nghệ, một dự án thú vị, hay một điều bạn muốn chia sẻ.</p></div>
+              <QuickContactDialog />
+              <ArrowUpRight className='contact-decoration' aria-hidden='true' strokeWidth={0.6} />
+            </section>
+          </main>
+          <footer className='site-footer'>
+            <div className='footer-top'><span>CẢM ƠN BẠN ĐÃ GHÉ THĂM</span><button className='replay-button' onClick={replay}><RotateCcw size={13} aria-hidden='true' />Xem lại lời chào</button></div>
+            <div className='footer-signature'><span className='sr-only'>{bioData.name}</span><HandwrittenName active={ready} /></div>
+            <div className='footer-bottom'><span>© {new Date().getFullYear()} {bioData.name}</span><span>Electronics & Telecommunications</span><a href='#gioi-thieu' aria-label='Trở về đầu trang'>VỀ ĐẦU TRANG <ArrowUpRight size={13} aria-hidden='true' /></a></div>
+          </footer>
         </div>
-        <div className='w-full pt-1'>
-          <QuickContactDialog />
-        </div>
-      </main>
-
-      <footer className='relative z-10 mt-12 text-center text-xs text-muted-foreground/70 space-y-1'>
-        <p>© {new Date().getFullYear()} • {bioData.name}</p>
-        <p className='text-[11px] opacity-70'>Electronics & Telecommunications Engineer</p>
-      </footer>
-    </div>
+      </div>
+      <noscript><style>{'.site-shell{opacity:1!important;visibility:visible!important}.welcome-overlay{display:none!important}'}</style><p className='noscript-notice'>Bật JavaScript để xem hiệu ứng và sử dụng các nút tương tác.</p></noscript>
+    </>
   );
 }

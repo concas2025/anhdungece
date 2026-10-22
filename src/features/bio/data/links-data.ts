@@ -1,11 +1,13 @@
 import { BioProfileData } from '../types';
 
+const assetBase = process.env.NEXT_PUBLIC_BASE_PATH || '';
+
 export const bioData: BioProfileData = {
   name: 'Phạm Anh Dũng',
   title: 'Electronics & Telecommunications Engineer',
   bio: 'Kỹ sư Điện tử & Viễn thông • Đam mê nghiên cứu, vọc vạch công nghệ phần cứng, mạch điện tử và hệ thống viễn thông.',
   location: 'Việt Nam',
-  avatarUrl: 'https://i.postimg.cc/y6jbWDP5/download.jpg',
+  avatarUrl: `${assetBase}/images/avatar.jpg`,
   status: 'online',
   statusText: 'Đang trực tuyến • Sẵn sàng kết nối',
   isVerified: true,
@@ -23,7 +25,7 @@ export const bioData: BioProfileData = {
       bankName: 'Techcombank (Chính)',
       bankCode: 'TCB',
       accountName: 'PHAM ANH DUNG',
-      qrImageUrl: 'https://i.postimg.cc/R0qg3dgG/3cd0efef-2718-4a9b-b754-46795ff851ee.jpg',
+      qrImageUrl: `${assetBase}/images/qr-techcombank.jpg`,
       isPrimary: true,
       note: 'Tài khoản chính • Quét mã VietQR chuyển khoản nhanh 24/7'
     },
@@ -32,7 +34,7 @@ export const bioData: BioProfileData = {
       bankName: 'Vietcombank (Phụ)',
       bankCode: 'VCB',
       accountName: 'PHAM ANH DUNG',
-      qrImageUrl: 'https://i.postimg.cc/tg7B1kBk/0a6b7502-168b-499b-bed7-5007e595b452.jpg',
+      qrImageUrl: `${assetBase}/images/qr-vietcombank.jpg`,
       isPrimary: false,
       note: 'Tài khoản phụ • Quét mã VietQR 24/7'
     }

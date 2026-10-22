@@ -5,6 +5,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { bioData } from '@/features/bio/data/links-data';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://concas2025.github.io'),
+  applicationName: 'AD — Personal Space',
   title: `${bioData.name} | Thông Tin Liên Hệ & Bio Links`,
   description: bioData.bio,
   openGraph: {
@@ -22,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang='vi' suppressHydrationWarning>
       <body className='min-h-screen bg-background font-sans antialiased selection:bg-primary selection:text-primary-foreground'>
-        <ThemeProvider attribute='class' defaultTheme='system' enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute='class' defaultTheme='dark' enableSystem disableTransitionOnChange>
           <Toaster />
           {children}
         </ThemeProvider>
