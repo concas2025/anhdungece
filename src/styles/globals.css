@@ -80,6 +80,7 @@ section { scroll-margin-top: 35px; }
 .profile-grid { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 64px; align-items: center; padding: 46px 0 30px; }
 .profile-greeting { font-size: 19px; font-weight: 350; color: var(--muted-foreground); margin: 0 0 4px; }
 #profile-name { margin: 0 0 14px -11px; width: calc(100% + 22px); }
+#profile-name:focus { outline: none; }
 .signature { display: block; width: 100%; height: auto; overflow: visible; }
 .profile-profession { display: flex; align-items: center; gap: 10px; font-size: 9px; letter-spacing: .15em; color: var(--primary); margin-top: 14px; }
 .profession-divider { height: 2px; width: 2px; border-radius: 50%; background: var(--primary); }
