@@ -2,6 +2,50 @@ import { BioProfileData } from '../types';
 
 const assetBase = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
+export interface MusicTrack {
+  id: string;
+  title: string;
+  artist: string;
+  artwork: string;
+  src: string;
+  fallbackDuration: number;
+}
+
+export const bioTracks: MusicTrack[] = [
+  {
+    id: 'nguoi-tinh-anh-trang',
+    title: 'Người Tình Ánh Trăng',
+    artist: 'fishy ft. EREN',
+    artwork: `${assetBase}/images/music-cover.jpg`,
+    src: `${assetBase}/audio/nguoi-tinh-anh-trang.mp3`,
+    fallbackDuration: 200,
+  },
+  {
+    id: 'hon-ca-anh',
+    title: 'Hơn Cả Anh',
+    artist: 'VSTRA ft. Tyronee',
+    artwork: `${assetBase}/images/music-cover-hon-ca-anh.jpg`,
+    src: `${assetBase}/audio/hon-ca-anh.mp3`,
+    fallbackDuration: 207,
+  },
+  {
+    id: 'goodbye-rocky',
+    title: 'GOODBYE ROCKY',
+    artist: 'Dangrangto',
+    artwork: `${assetBase}/images/music-cover-goodbye-rocky.jpg`,
+    src: `${assetBase}/audio/goodbye-rocky.mp3`,
+    fallbackDuration: 298,
+  },
+  {
+    id: 'qua-du-roi',
+    title: 'Quá Đủ Rồi',
+    artist: 'COOLKID',
+    artwork: `${assetBase}/images/music-cover-qua-du-roi.jpg`,
+    src: `${assetBase}/audio/qua-du-roi.mp3`,
+    fallbackDuration: 243,
+  },
+];
+
 export const bioData: BioProfileData = {
   name: 'Phạm Anh Dũng',
   title: 'Electronics & Telecommunications Engineer',

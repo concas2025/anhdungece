@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTheme } from 'next-themes';
 import { ArrowDown, ArrowUpRight, Moon, Sun, Share2, RotateCcw } from 'lucide-react';
@@ -12,7 +12,12 @@ import { QuickContactDialog } from './quick-contact-dialog';
 import { SectionDock } from './section-dock';
 import { WelcomeIntro } from '@/components/effects/welcome-intro';
 import { HandwrittenName } from '@/components/effects/handwritten-name';
-import { bioData } from '../data/links-data';
+import { bioData, bioTracks } from '../data/links-data';
+import {
+  BioMusicShowcase,
+  FloatingBioMusicPlayer,
+  useBioAudio,
+} from './bio-music-controller';
 
 const ChromeBackground = dynamic(() => import('@/components/effects/chrome-background'), { ssr: false });
 
@@ -21,11 +26,31 @@ export function BioViewPage() {
   const [ready, setReady] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [introKey, setIntroKey] = useState(0);
+  const [showFloatingPlayer, setShowFloatingPlayer] = useState(false);
+  const showcaseRef = useRef<HTMLDivElement>(null);
+  const audio = useBioAudio(bioTracks);
   const finishIntro = useCallback(() => {
     setReady(true);
     requestAnimationFrame(() => document.getElementById('profile-name')?.focus({ preventScroll: true }));
   }, []);
   useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    if (!ready) {
+      setShowFloatingPlayer(false);
+      return;
+    }
+    const el = showcaseRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        setShowFloatingPlayer(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+      },
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ready]);
 
   const handleShare = async () => {
     const data = { title: bioData.name + ' | Bio Links', text: bioData.bio, url: window.location.href };
@@ -47,7 +72,15 @@ export function BioViewPage() {
     <>
       <WelcomeIntro key={introKey} onComplete={finishIntro} />
       {ready && <ChromeBackground />}
-      <div className={'site-shell ' + (ready ? 'site-shell--ready' : '')} inert={mounted && !ready}>
+      {audio.audioElement}
+      <div
+        className={
+          'site-shell ' +
+          (ready ? 'site-shell--ready ' : '') +
+          (showFloatingPlayer ? 'site-shell--floating-music' : '')
+        }
+        inert={mounted && !ready}
+      >
         <a href='#ket-noi' className='skip-link'>Đến danh sách liên kết</a>
         <SectionDock />
         <div className='page-content'>
@@ -57,7 +90,7 @@ export function BioViewPage() {
               <span className='topbar-location'>VIỆT NAM <span aria-hidden='true'>↗</span></span>
               <button className='metal-control icon-control' onClick={handleShare} aria-label='Chia sẻ trang cá nhân'><Share2 size={17} aria-hidden='true' /></button>
               {mounted && <button className='metal-control icon-control' onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')} aria-label={resolvedTheme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}>
-                {resolvedTheme === 'dark' ? <Sun size={17} aria-hidden='true' /> : <Moon size={17} aria-hidden='true' />}
+                {resolvedTheme === 'dark' ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
               </button>}
             </div>
           </header>
@@ -65,6 +98,7 @@ export function BioViewPage() {
             <section id='gioi-thieu' className='intro-section' aria-labelledby='profile-name'>
               <div className='section-kicker'><span className='status-dot' /> MỘT GÓC NHỎ TRÊN INTERNET <span className='kicker-line' /></div>
               <ProfileHeader profile={bioData} ready={ready} />
+              <BioMusicShowcase audio={audio} containerRef={showcaseRef} />
               <a href='#ket-noi' className='scroll-cue'><span>KHÁM PHÁ THÊM</span><ArrowDown size={15} aria-hidden='true' /></a>
             </section>
             <div className='information-grid'>
@@ -92,6 +126,7 @@ export function BioViewPage() {
             <div className='footer-bottom'><span>© {new Date().getFullYear()} {bioData.name}</span><span>Electronics & Telecommunications</span><a href='#gioi-thieu' aria-label='Trở về đầu trang'>VỀ ĐẦU TRANG <ArrowUpRight size={13} aria-hidden='true' /></a></div>
           </footer>
         </div>
+        <FloatingBioMusicPlayer audio={audio} visible={ready && showFloatingPlayer} />
       </div>
       <noscript><style>{'.site-shell{opacity:1!important;visibility:visible!important}.welcome-overlay{display:none!important}'}</style><p className='noscript-notice'>Bật JavaScript để xem hiệu ứng và sử dụng các nút tương tác.</p></noscript>
     </>

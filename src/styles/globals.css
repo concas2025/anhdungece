@@ -31,6 +31,13 @@
   --border: #cccddc; --panel: rgba(248,248,255,.88); --panel-soft: rgba(246,246,253,.82);
   --line: rgba(62,58,92,.18); --metal-face: #e7e8f1; --metal-hover: #f7f6ff;
   --subtle: #68687d; --scrim: rgba(235,235,244,.64); --violet: #7770ce;
+  --glass-tint: oklch(1 0 0 / 14%);
+  --glass-tint-frosted: oklch(1 0 0 / 42%);
+  --glass-rim: inset 1px 1px 0 -0.5px oklch(1 0 0 / 85%), inset -1px -1px 0 -0.5px oklch(1 0 0 / 55%), inset 0 0 0 0.5px oklch(1 0 0 / 40%), inset 0 0 12px -4px oklch(1 0 0 / 60%);
+  --glass-shadow: 0 1px 2px oklch(0 0 0 / 6%), 0 10px 32px -8px oklch(0 0 0 / 22%);
+  --glass-foreground: oklch(0.18 0.004 286);
+  --glass-highlight: oklch(1 0 0 / 62%);
+  --glass-overlay-tint: rgba(248, 248, 255, 0.93);
 }
 .dark {
   color-scheme: dark;
@@ -40,6 +47,13 @@
   --border: #3b3949; --panel: rgba(22,22,32,.86); --panel-soft: rgba(23,23,34,.8);
   --line: rgba(213,204,255,.16); --metal-face: #1b1b27; --metal-hover: #302b40;
   --subtle: #aaa7bc; --scrim: rgba(9,10,17,.78); --violet: #c6b6fc;
+  --glass-tint: oklch(0.2 0.004 286 / 22%);
+  --glass-tint-frosted: oklch(0.2 0.004 286 / 50%);
+  --glass-rim: inset 1px 1px 0 -0.5px oklch(1 0 0 / 45%), inset -1px -1px 0 -0.5px oklch(1 0 0 / 22%), inset 0 0 0 0.5px oklch(1 0 0 / 16%), inset 0 0 12px -4px oklch(1 0 0 / 22%);
+  --glass-shadow: 0 1px 2px oklch(0 0 0 / 20%), 0 12px 36px -8px oklch(0 0 0 / 50%);
+  --glass-foreground: oklch(0.98 0 0);
+  --glass-highlight: oklch(1 0 0 / 16%);
+  --glass-overlay-tint: rgba(16, 17, 26, 0.93);
 }
 * { box-sizing: border-box; border-color: var(--border); }
 html { scroll-behavior: smooth; scroll-padding-top: 35px; }
@@ -56,7 +70,7 @@ section { scroll-margin-top: 35px; }
 .background-scrim { position: absolute; inset: 0; background: var(--scrim); pointer-events: none; transition: background .4s; }
 .site-shell { opacity: 0; transition: opacity .65s; }
 .site-shell--ready { opacity: 1; }
-.page-content { max-width: 1192px; padding: 0 48px; margin: 0 auto; }
+.page-content { position: relative; max-width: 1192px; padding: 0 48px; margin: 0 auto; }
 .site-topbar { display: flex; align-items: center; justify-content: space-between; height: 112px; border-bottom: 1px solid var(--line); }
 .wordmark { display: flex; align-items: baseline; text-decoration: none; color: var(--foreground); font-size: 31px; letter-spacing: -2px; font-weight: 750; }
 .wordmark > span { font-size: 11px; margin: 0 20px 0 3px; align-self: flex-start; padding-top: 9px; letter-spacing: 0; }
@@ -256,4 +270,350 @@ section { scroll-margin-top: 35px; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms!important; animation-iteration-count: 1!important; transition-duration: .01ms!important; }
 }
-@media(prefers-reduced-transparency:reduce) { .glass-panel,.section-dock { background: var(--card); backdrop-filter: none; } }
+
+/* Liquid Glass & Unified Music Player */
+.liquid-glass {
+  background: var(--glass-tint);
+  box-shadow: var(--glass-rim), var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+.liquid-glass--frosted {
+  background: var(--glass-tint-frosted);
+}
+[data-slot="glass-player"] button:focus-visible {
+  outline: none;
+}
+
+.eq-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 13px;
+}
+.eq-bars span {
+  width: 2.5px;
+  border-radius: 99px;
+  background: currentColor;
+  height: 4px;
+}
+.eq-bars--active span:nth-child(1) { animation: eq-bounce 0.85s ease-in-out infinite; }
+.eq-bars--active span:nth-child(2) { animation: eq-bounce 0.85s ease-in-out 0.22s infinite; }
+.eq-bars--active span:nth-child(3) { animation: eq-bounce 0.85s ease-in-out 0.44s infinite; }
+@keyframes eq-bounce {
+  0%, 100% { height: 4px; }
+  50% { height: 13px; }
+}
+
+/* Inline player showcase inside intro section */
+.music-showcase-band {
+  margin: 18px 0 18px;
+  padding: 26px;
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 384px);
+  gap: 28px;
+  align-items: center;
+}
+.music-showcase-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.music-showcase-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--subtle);
+}
+.music-showcase-title {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 26px);
+  font-weight: 450;
+  letter-spacing: -0.5px;
+  line-height: 1.35;
+}
+.music-showcase-title span {
+  color: var(--violet);
+}
+.card-hover {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 4px;
+}
+.card-hover-strip {
+  display: flex;
+  width: 100%;
+  height: 204px;
+  gap: 6px;
+}
+.card-hover-card {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  overflow: hidden;
+  flex: 1 1 0%;
+  transition:
+    flex-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+.card-hover-card[data-expanded='true'] {
+  flex-grow: 4.2;
+}
+.card-hover-card[aria-pressed='true'] {
+  border-color: var(--violet);
+  box-shadow: 0 10px 24px -10px rgba(119, 112, 206, 0.45);
+}
+.card-hover-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 20;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(14, 15, 22, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #f4f3fa;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+.card-hover-card[aria-pressed='true'] .card-hover-badge {
+  border-color: rgba(198, 182, 252, 0.55);
+  color: #c6b6fc;
+}
+.card-hover-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 9px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(155, 147, 199, 0.07);
+  color: var(--foreground);
+}
+.card-hover-caption__index {
+  width: 24px;
+  flex-shrink: 0;
+  display: inline-flex;
+  justify-content: center;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+}
+.card-hover-caption__meta {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card-hover-caption__meta strong {
+  font-size: 13px;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-hover-caption__meta span {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-hover-caption__duration {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--subtle);
+  flex-shrink: 0;
+}
+.music-showcase-player {
+  justify-self: end;
+  width: 100%;
+  max-width: 384px;
+}
+
+/* Scroll-triggered Floating Desktop + Mini Bar Mobile */
+.floating-player-desktop {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  width: min(360px, calc(100vw - 48px));
+  display: flex;
+  justify-content: flex-end;
+}
+.floating-player-desktop .liquid-glass--frosted,
+.floating-pill,
+.mobile-music-dock .liquid-glass--frosted,
+.mobile-music-bar {
+  background: var(--glass-overlay-tint);
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+}
+.floating-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 8px;
+  border-radius: 999px;
+  color: var(--glass-foreground);
+  max-width: 332px;
+}
+.floating-pill__cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+}
+.floating-pill__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.floating-pill__meta {
+  min-width: 0;
+  flex: 1;
+}
+.floating-pill__title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.floating-pill__artist {
+  font-size: 11px;
+  opacity: 0.62;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-music-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  background: rgba(8, 9, 14, 0.56);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.mobile-music-dock {
+  display: none;
+}
+
+@media(max-width: 1179px) {
+  .floating-player-desktop {
+    display: none;
+  }
+  .page-content {
+    padding-bottom: 160px;
+  }
+  .mobile-music-dock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 78px);
+    width: min(410px, calc(100vw - 32px));
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .mobile-music-dock > * {
+    pointer-events: auto;
+  }
+  .mobile-music-bar {
+    width: 100%;
+    height: 58px;
+    padding: 7px 8px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--glass-foreground);
+  }
+  .mobile-music-bar__cover {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .mobile-music-bar__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+@media(max-width: 899px) {
+  .music-showcase-band {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 20px;
+  }
+  .card-hover {
+    max-width: none;
+  }
+  .card-hover-strip {
+    height: 172px;
+    gap: 5px;
+  }
+  .card-hover-card {
+    border-radius: 16px;
+  }
+  .music-showcase-player {
+    justify-self: center;
+  }
+}
+
+@media(max-width: 767px) {
+  .page-content {
+    padding-bottom: 168px;
+  }
+  .music-showcase-band {
+    padding: 16px;
+    border-radius: 24px;
+  }
+}
+
+@media(prefers-reduced-transparency:reduce) {
+  .glass-panel,
+  .section-dock,
+  .liquid-glass,
+  .liquid-glass--frosted,
+  .floating-player-desktop .liquid-glass--frosted,
+  .floating-pill,
+  .mobile-music-dock .liquid-glass--frosted,
+  .mobile-music-bar {
+    background: var(--card);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
